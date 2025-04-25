@@ -37,6 +37,57 @@ entregas.post("/register", async (req, res) => {
     }
 });
 
+//REGISTRO Entrega
+entregas.post("/register", async (req, res) => {
+    const { id_solicitud, direccion_entrega, fecha_estimada, fecha_entrega, estado_entrega } = req.body;
+    try {
+        const [existingentregas] = await connection.query("SELECT * FROM entregas WHERE id_solicitud = ?", [id_solicitud]);
+        if (existingentregas.length > 0)
+            return res.status(409).json({ message: "Solicitud ya registrada" });
+
+        // VALIDAR QUE LA SOLICITUD EXISTE A TRAVEZ DE MICROSERVICIO DE SOLICITUDES
+        const response_solicitud = await axios.get(`http://localhost:4000/solicitudes/${id_solicitud}`);
+        const solicitud = response_solicitud.data;
+        if (!solicitud) {
+            res.status(404).json({ message: "Solicitud no encontrada" });
+        }
+
+        await connection.query("INSERT INTO entregas (id_solicitud, direccion_entrega, fecha_estimada, fecha_entrega, estado_entrega) VALUES (?, ?, ?, ?)", [id_solicitud, direccion_entrega, fecha_estimada, fecha_entrega, estado_entrega]);
+        res.status(201).json({ message: "Entrega registrado correctamente." });
+    } catch (error) {
+        console.error("Error en registro:", error);
+        res.status(500).json({ message: "Error en el servidor" });
+    }
+});
+
+
+//REGISTRO Entrega
+entregas.post("/update/:id", async (req, res) => {
+    const { id } = req.params;
+    const { id_solicitud, direccion_entrega, fecha_estimada, fecha_entrega, estado_entrega } = req.body;
+    try {
+        const [existingentregas] = await connection.query("SELECT * FROM entregas WHERE id_entrega = ?", [id]);
+        if (existingentregas.length == 0)
+            return res.status(409).json({ message: "Solicitud no encontrada" });
+
+        // VALIDAR QUE LA SOLICITUD EXISTE A TRAVEZ DE MICROSERVICIO DE SOLICITUDES
+        const response_solicitud = await axios.get(`http://localhost:4000/solicitudes/${id_solicitud}`);
+        const solicitud = response_solicitud.data;
+        if (!solicitud) {
+            res.status(404).json({ message: "Solicitud no encontrada" });
+        }
+
+        await connection.query(
+            "UPDATE entregas SET direccion_entrega = ?, fecha_estimada = ?, fecha_entrega = ?, estado_entrega = ? WHERE id_solicitud = ?",
+            [direccion_entrega, fecha_estimada, fecha_entrega, estado_entrega, id_solicitud]
+        );
+        res.status(201).json({ message: "Entrega registrado correctamente." });
+    } catch (error) {
+        console.error("Error en registro:", error);
+        res.status(500).json({ message: "Error en el servidor" });
+    }
+});
+
 //ELIMINAR Entrega
 entregas.delete("/:id", async (req, res) => {
     const { id } = req.params;
