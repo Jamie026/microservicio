@@ -78,8 +78,8 @@ entregas.post("/update/:id", async (req, res) => {
         }
 
         await connection.query(
-            "UPDATE entregas SET direccion_entrega = ?, fecha_estimada = ?, fecha_entrega = ?, estado_entrega = ? WHERE id_solicitud = ?",
-            [direccion_entrega, fecha_estimada, fecha_entrega, estado_entrega, id_solicitud]
+            "UPDATE entregas SET direccion_entrega = ?, fecha_estimada = ?, fecha_entrega = ?, estado_entrega = ? WHERE id_entrega = ?",
+            [direccion_entrega, fecha_estimada, fecha_entrega, estado_entrega, id]
         );
         res.status(201).json({ message: "Entrega registrado correctamente." });
     } catch (error) {
