@@ -23,7 +23,11 @@ entregas.post("/register", async (req, res) => {
             return res.status(409).json({ message: "Solicitud ya registrada" });
 
         // VALIDAR QUE LA SOLICITUD EXISTE A TRAVEZ DE MICROSERVICIO DE SOLICITUDES
-
+        const response_solicitud = await axios.get(`http://localhost:3000/solicitudes/${id_solicitud}`);
+        const solicitud = response_solicitud.data;
+        if (!solicitud) {
+            res.status(404).json({ message: "Solicitud no encontrada" });
+        }
 
         await connection.query("INSERT INTO entregas (id_solicitud, direccion_entrega, fecha_estimada, fecha_entrega, estado_entrega) VALUES (?, ?, ?, ?)", [id_solicitud, direccion_entrega, fecha_estimada, fecha_entrega, estado_entrega]);
         res.status(201).json({ message: "Entrega registrado correctamente." });
