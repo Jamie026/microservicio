@@ -32,13 +32,13 @@ empleados.post("/login", async (req, res) => {
 
 //REGISTRO EMPLEADO
 empleados.post("/register", async (req, res) => {
-    const { nombre, usuario, clave } = req.body;
+    const { nombre, usuario, clave, email } = req.body;
     try {
         const hash_clave = encriptar(clave);
         const [existingEmpleados] = await connection.query("SELECT * FROM Empleados WHERE usuario = ?", [usuario]);
         if (existingEmpleados.length > 0)
             return res.status(409).json({ message: "Usuario ya registrado" });
-        await connection.query("INSERT INTO Empleados (nombre, usuario, clave) VALUES (?, ?, ?)", [nombre, usuario, hash_clave]);
+        await connection.query("INSERT INTO Empleados (nombre, usuario, clave, email) VALUES (?, ?, ?, ?)", [nombre, usuario, hash_clave, email]);
         res.status(201).json({ message: "Empleado registrado correctamente." });
     } catch (error) {
         console.error("Error en registro:", error);
@@ -51,11 +51,11 @@ empleados.delete("/:id", async (req, res) => {
     const { id } = req.params;
     try {
         const [empleados] = await connection.query("SELECT * FROM Empleados");
-        const user = empleados.filter(user => id === user.id);
+        const user = empleados.filter(user => id == user.id_empleado);
         if (user.length === 0)
             res.status(401).json({ message: "ID no registrado" })
         else{
-            const [result] = await connection.query("DELETE FROM Empleados WHERE id = ?", [user[0].id]);
+            const [result] = await connection.query("DELETE FROM Empleados WHERE id_empleado = ?", [user[0].id_empleado]);
             if (result.affectedRows === 0) 
                 return res.status(404).json({ message: "Empleado no encontrado" });
             res.status(200).json({ message: "Empleado eliminado correctamente" });
@@ -66,4 +66,4 @@ empleados.delete("/:id", async (req, res) => {
     }
 });
 
-module.exports = clientes;
+module.exports = empleados;

@@ -32,13 +32,13 @@ proveedores.post("/login", async (req, res) => {
 
 //REGISTRO PROVEEDORES
 proveedores.post("/register", async (req, res) => {
-    const { nombre, usuario, clave, pais } = req.body;
+    const { nombre, usuario, clave, pais, email } = req.body;
     try {
         const hash_clave = encriptar(clave);
         const [existingProveedores] = await connection.query("SELECT * FROM Proveedores WHERE usuario = ?", [usuario]);
         if (existingProveedores.length > 0)
             return res.status(409).json({ message: "Usuario ya registrado" });
-        await connection.query("INSERT INTO Proveedores (nombre, usuario, clave, pais) VALUES (?, ?, ?, ?)", [nombre, usuario, hash_clave, pais]);
+        await connection.query("INSERT INTO Proveedores (nombre, usuario, clave, pais, email) VALUES (?, ?, ?, ?, ?)", [nombre, usuario, hash_clave, pais, email]);
         res.status(201).json({ message: "Proveedor registrado correctamente." });
     } catch (error) {
         console.error("Error en registro:", error);
@@ -51,11 +51,11 @@ proveedores.delete("/:id", async (req, res) => {
     const { id } = req.params;
     try {
         const [proveedores] = await connection.query("SELECT * FROM Proveedores");
-        const user = proveedores.filter(user => id === user.id);
+        const user = proveedores.filter(user => id == user.id_proveedor);
         if (user.length === 0)
             res.status(401).json({ message: "ID no registrado" })
         else{
-            const [result] = await connection.query("DELETE FROM Proveedores WHERE id = ?", [user[0].id]);
+            const [result] = await connection.query("DELETE FROM Proveedores WHERE id_proveedor = ?", [user[0].id_proveedor]);
             if (result.affectedRows === 0) 
                 return res.status(404).json({ message: "Proveedor no encontrado" });
             res.status(200).json({ message: "Proveedor eliminado correctamente" });
@@ -66,4 +66,4 @@ proveedores.delete("/:id", async (req, res) => {
     }
 });
 
-module.exports = clientes;
+module.exports = proveedores;

@@ -32,13 +32,13 @@ clientes.post("/login", async (req, res) => {
 
 //REGISTRO CLIENTE
 clientes.post("/register", async (req, res) => {
-    const { nombre, usuario, clave } = req.body;
+    const { nombre, usuario, clave, email } = req.body;
     try {
         const hash_clave = encriptar(clave);
         const [existingclientes] = await connection.query("SELECT * FROM Clientes WHERE usuario = ?", [usuario]);
         if (existingclientes.length > 0)
             return res.status(409).json({ message: "Usuario ya registrado" });
-        await connection.query("INSERT INTO Clientes (nombre, usuario, clave) VALUES (?, ?, ?)", [nombre, usuario, hash_clave]);
+        await connection.query("INSERT INTO Clientes (nombre, usuario, clave, email) VALUES (?, ?, ?, ?)", [nombre, usuario, hash_clave, email]);
         res.status(201).json({ message: "Cliente registrado correctamente." });
     } catch (error) {
         console.error("Error en registro:", error);
@@ -51,11 +51,11 @@ clientes.delete("/:id", async (req, res) => {
     const { id } = req.params;
     try {
         const [clientes] = await connection.query("SELECT * FROM Clientes");
-        const user = clientes.filter(user => id === user.id);
+        const user = clientes.filter(user => id == user.id_cliente);
         if (user.length === 0)
             res.status(401).json({ message: "ID no registrado" })
         else{
-            const [result] = await connection.query("DELETE FROM Clientes WHERE id = ?", [user[0].id]);
+            const [result] = await connection.query("DELETE FROM Clientes WHERE id_cliente = ?", [user[0].id_cliente]);
             if (result.affectedRows === 0) 
                 return res.status(404).json({ message: "Cliente no encontrado" });
             res.status(200).json({ message: "Cliente eliminado correctamente" });
