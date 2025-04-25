@@ -1,6 +1,5 @@
 
 -- // -------------------- USUARIOS
-CREATE DATABASE usuarios;
 USE usuarios;
 
 CREATE TABLE empleados (
@@ -30,7 +29,6 @@ CREATE TABLE clientes (
 
 
 -- // -------------------- VENTAS
-CREATE DATABASE ventas;
 USE ventas;
 
 CREATE TABLE productos (
@@ -49,10 +47,8 @@ CREATE TABLE inventario (
 CREATE TABLE solicitudes (
     id_solicitud INT PRIMARY KEY AUTO_INCREMENT,
     id_cliente INT NOT NULL,  -- LO COMPLETAMOS POR MICROSERVICIO
-    id_entrega INT NOT NULL,  -- LO COMPLETAMOS POR MICROSERVICIO
     fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
     estado VARCHAR(50) DEFAULT 'pendiente'
-    
 );
 
 CREATE TABLE producto_solicitud (
@@ -66,7 +62,6 @@ CREATE TABLE producto_solicitud (
 
 
 -- // -------------------- OPERACIONES
-CREATE DATABASE operaciones;
 USE operaciones;
 
 CREATE TABLE pagos (
@@ -86,3 +81,7 @@ CREATE TABLE entregas (
     fecha_entrega DATE,
     estado_entrega VARCHAR(50) DEFAULT 'pendiente'  -- 'pendiente', 'en camino', 'entregado', 'cancelado'
 );
+
+USE ventas;
+
+ALTER TABLE solicitudes DROP COLUMN id_entrega;
