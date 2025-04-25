@@ -23,7 +23,7 @@ entregas.post("/register", async (req, res) => {
             return res.status(409).json({ message: "Solicitud ya registrada" });
 
         // VALIDAR QUE LA SOLICITUD EXISTE A TRAVEZ DE MICROSERVICIO DE SOLICITUDES
-        const response_solicitud = await axios.get(`http://localhost:3000/solicitudes/${id_solicitud}`);
+        const response_solicitud = await axios.get(`http://localhost:4000/solicitudes/${id_solicitud}`);
         const solicitud = response_solicitud.data;
         if (!solicitud) {
             res.status(404).json({ message: "Solicitud no encontrada" });

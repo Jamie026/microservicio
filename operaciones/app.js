@@ -3,7 +3,7 @@ const app = express();
 const cors = require("cors");
 require("dotenv").config();
 
-const PORT = process.env.port || 3001;
+const PORT = process.env.port || 5000;
 
 const pagos = require("./routes/pagos");
 const entregas = require("./routes/entregas");
