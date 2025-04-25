@@ -1,6 +1,7 @@
 const express = require("express")
 const pagos = express.Router()
 const connection = require("../config/db");
+const axios = require("axios");
 
 //OBTENER pagos
 pagos.get("/", async (req, res) => {
@@ -13,27 +14,23 @@ pagos.get("/", async (req, res) => {
     }
 });
 
-
-
 //REGISTRO pagos
-pagos.post("/register", async (req, res) => {
-    const { id_solicitud, metodo_pago, monto, estado_pago, fecha_pago } = req.body;
+pagos.post("/", async (req, res) => {
+    const { id_solicitud, metodo_pago, monto } = req.body;
     try {
-
         const [existingpagos] = await connection.query("SELECT * FROM pagos WHERE id_solicitud = ?", [id_solicitud]);
         if (existingpagos.length > 0)
-            return res.status(409).json({ message: "Solicitud ya registrada" });
+            return res.status(409).json({ message: "Solicitud ya registrada en proceso de pago." });
 
         // VALIDAR QUE LA SOLICITUD EXISTE A TRAVEZ DE MICROSERVICIO DE SOLICITUDES
-        const response_solicitud = await axios.get(`http://localhost:3000/solicitudes/${id_solicitud}`);
-        const solicitud = response_solicitud.data;
-        if (!solicitud) {
+        const response = await axios.get("http://localhost:4000/solicitudes/");
+        const response_solicitud = response.data.filter(solicitud => solicitud.id_solicitud == id_solicitud);
+        if (response_solicitud.length === 0)
             res.status(404).json({ message: "Solicitud no encontrada" });
-        }
-        await connection.query("INSERT INTO pagos (id_solicitud, metodo_pago, monto, estado_pago ,fecha_pago) VALUES (?, ?, ?, ?)", [id_solicitud, metodo_pago, monto, estado_pago, fecha_pago]);
-        res.status(201).json({ message: "pago registrado correctamente." });
+        await connection.query("INSERT INTO pagos (id_solicitud, metodo_pago, monto) VALUES (?, ?, ?)", [id_solicitud, metodo_pago, monto]);
+        res.status(201).json({ message: "Pago registrado correctamente." });
     } catch (error) {
-        console.error("Error en registro:", error);
+        console.error("Error en registrar pago:", error);
         res.status(500).json({ message: "Error en el servidor" });
     }
 });
@@ -42,15 +39,14 @@ pagos.post("/register", async (req, res) => {
 pagos.delete("/:id", async (req, res) => {
     const { id } = req.params;
     try {
-        const [pagos] = await connection.query("SELECT * FROM pagos");
-        const user = pagos.filter(user => id == user.id_pago);
-        if (user.length === 0)
+        const [pagos] = await connection.query("SELECT * FROM pagos WHERE id_pago = ?", [id]);
+        if (pagos.length === 0)
             res.status(401).json({ message: "ID no registrado" })
         else {
-            const [result] = await connection.query("DELETE FROM pagos WHERE id_pago = ?", [user[0].id_pago]);
+            const [result] = await connection.query("DELETE FROM pagos WHERE id_pago = ?", [id]);
             if (result.affectedRows === 0)
-                return res.status(404).json({ message: "pago no encontrado" });
-            res.status(200).json({ message: "pago eliminado correctamente" });
+                return res.status(404).json({ message: "Pago no encontrado" });
+            res.status(200).json({ message: "Pago eliminado correctamente" });
         }
     } catch (error) {
         console.error("Error al eliminar pago:", error);
