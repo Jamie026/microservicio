@@ -1,4 +1,3 @@
-
 -- // -------------------- USUARIOS
 USE usuarios;
 
@@ -27,8 +26,8 @@ CREATE TABLE clientes (
     clave VARCHAR(100) NOT NULL
 );
 
-
 -- // -------------------- VENTAS
+
 USE ventas;
 
 CREATE TABLE productos (
@@ -46,7 +45,7 @@ CREATE TABLE inventario (
 
 CREATE TABLE solicitudes (
     id_solicitud INT PRIMARY KEY AUTO_INCREMENT,
-    id_cliente INT NOT NULL,  -- LO COMPLETAMOS POR MICROSERVICIO
+    id_cliente INT NOT NULL, 
     fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
     estado VARCHAR(50) DEFAULT 'pendiente'
 );
@@ -60,26 +59,26 @@ CREATE TABLE producto_solicitud (
     FOREIGN KEY (id_producto) REFERENCES productos(id_producto)
 );
 
-
 -- // -------------------- OPERACIONES
+
 USE operaciones;
 
 CREATE TABLE pagos (
     id_pago INT PRIMARY KEY AUTO_INCREMENT,
-    id_solicitud INT NOT NULL,            -- LO COMPLETAMOS POR MICROSERVICIO
-    metodo_pago VARCHAR(50) NOT NULL,     -- ej. 'tarjeta', 'efectivo', 'transferencia'
+    id_solicitud INT NOT NULL,           
+    metodo_pago VARCHAR(50) NOT NULL,     
     monto INT NOT NULL,
-    estado_pago VARCHAR(50) DEFAULT 'pendiente',  -- 'pendiente', 'pagado', 'fallido'
+    estado_pago VARCHAR(50) DEFAULT 'pendiente',  
     fecha_pago DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE entregas (
     id_entrega INT PRIMARY KEY AUTO_INCREMENT,
-    id_solicitud INT NOT NULL,               -- LO COMPLETAMOS POR MICROSERVICIO
+    id_solicitud INT NOT NULL,              
     direccion_entrega VARCHAR(255) NOT NULL,
     fecha_estimada DATE,
     fecha_entrega DATE,
-    estado_entrega VARCHAR(50) DEFAULT 'pendiente'  -- 'pendiente', 'en camino', 'entregado', 'cancelado'
+    estado_entrega VARCHAR(50) DEFAULT 'pendiente'  
 );
 
 USE ventas;
